@@ -3,11 +3,10 @@ kind: Service
 metadata:
   name: fastapi-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: fastapi-backend
   ports:
     - port: 8000
       targetPort: 8000
-      nodePort: 30080  # expose backend on host port 30080
 

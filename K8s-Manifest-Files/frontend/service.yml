@@ -3,11 +3,9 @@ kind: Service
 metadata:
   name: nextjs-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: nextjs-frontend
   ports:
     - port: 3000
       targetPort: 3000
-      nodePort: 30000  # expose frontend on host port 30000
-
