@@ -24,7 +24,7 @@ pipeline {
                 dir('DevOps-Assignment/backend') {
                     withSonarQubeEnv('sonar-server') {
                         sh ''' $SCANNER_HOME/bin/sonar-scanner \
-                        -Dsonar.projectName=bacend \
+                        -Dsonar.projectName=backend \
                         -Dsonar.projectKey=backend '''
                     }
                 }
@@ -55,7 +55,7 @@ pipeline {
         stage("Docker Image Build") {
             steps {
                 script {
-                    dir('DevOps-Assignment') {
+                    dir('DevOps-Assignment/backend') {
                             sh 'docker system prune -f'
                             sh 'docker container prune -f'
                             sh 'docker build -t ${AWS_ECR_REPO_NAME} .'
