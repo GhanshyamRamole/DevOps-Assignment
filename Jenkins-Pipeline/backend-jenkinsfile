@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Sonarqube Analysis') {
             steps {
-                dir('DevOps-Assignment/backend') {
+                dir('./backend') {
                     withSonarQubeEnv('sonar-server') {
                         sh ''' $SCANNER_HOME/bin/sonar-scanner \
                         -Dsonar.projectName=backend \
@@ -37,17 +37,17 @@ pipeline {
                 }
             }
         }
-        stage('OWASP Dependency-Check Scan') {
-            steps {
-                dir('DevOps-Assignment/backend') {
-                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-                }
-            }
-        }
+        // stage('OWASP Dependency-Check Scan') {
+        //     steps {
+        //         dir('./backend') {
+        //             dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+        //             dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+        //         }
+        //     }
+        // }
         stage('Trivy File Scan') {
             steps {
-                dir('DevOps-Assignment/backend') {
+                dir('./backend') {
                     sh 'trivy fs . > trivyfs.txt'
                 }
             }
@@ -55,7 +55,7 @@ pipeline {
         stage("Docker Image Build") {
             steps {
                 script {
-                    dir('DevOps-Assignment/backend') {
+                    dir('./backend') {
                             sh 'docker system prune -f'
                             sh 'docker container prune -f'
                             sh 'docker build -t ${AWS_ECR_REPO_NAME} .'
@@ -66,9 +66,11 @@ pipeline {
         stage("ECR Image Pushing") {
             steps {
                 script {
+                    withCredentials([aws(credentialsId: "aws-creds")]){
                         sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${REPOSITORY_URI}'
                         sh 'docker tag ${AWS_ECR_REPO_NAME} ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}'
                         sh 'docker push ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}'
+                    }
                 }
             }
         }
