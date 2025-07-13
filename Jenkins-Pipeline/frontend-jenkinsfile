@@ -81,7 +81,7 @@ pipeline {
         }
         stage('Checkout Code') {
             steps {
-                git credentialsId: 'GITHUB', url: 'https://github.com/GhanshyamRamole/DevOps-Assignment.git'
+                git credentialsId: 'GITHUB', url: 'https://github.com/GhanshyamRamole/DevOps-Assignment.git', branch: 'main'
             }
         }
         stage('Update Deployment file') {
@@ -90,19 +90,19 @@ pipeline {
                 GIT_USER_NAME = "GhanshyamRamole"
             }
             steps {
-                dir('K8s-Manifest-Files/Frontend') {
+                dir('K8s-Manifest-Files/frontend') {
                     withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                         sh '''
                             git config user.email "ghanshyamramole999@gmail.com"
                             git config user.name "GhanshyamRamole"
                             BUILD_NUMBER=${BUILD_NUMBER}
                             echo $BUILD_NUMBER
-                            imageTag=$(grep -oP '(?<=frontend:)[^ ]+' deployment.yaml)
+                            imageTag=$(grep -oP '(?<=frontend:)[^ ]+' deployment.yml)
                             echo $imageTag
-                            sed -i "s/${AWS_ECR_REPO_NAME}:${imageTag}/${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}/" deployment.yaml
-                            git add deployment.yaml
+                            sed -i "s/${AWS_ECR_REPO_NAME}:${imageTag}/${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}/" deployment.yml
+                            git add deployment.yml
                             git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
-                            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+                            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
                         '''
                     }
                 }
