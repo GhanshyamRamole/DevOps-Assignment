@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
         - name: backend
-          image: ghanshyamramole/backend:6
+          image: backend:6
           ports:
             - containerPort: 8000
