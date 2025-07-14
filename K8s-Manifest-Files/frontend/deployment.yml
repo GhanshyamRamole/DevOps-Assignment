@@ -20,4 +20,4 @@ spec:
             - containerPort: 3000
           env:
             - name: NEXT_PUBLIC_API_URL
-              value: http://15.206.72.184/api
+              value: http://65.2.33.166/api
