@@ -1,0 +1,45 @@
+name: CD-pipeline
+
+on:
+  push:
+    branches:
+      - main 
+
+env:
+    AWS_REGION: "ap-south-1"
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v4
+
+          - name: Set up terraform
+            uses: hashicorp/setup-terraform@v3
+            with:
+                terraform_version: 1.9.8
+
+          - name: Configure AWS Credentials
+            uses: aws-actions/configure-aws-credentials@v3
+            with:
+              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+              aws-region: ${{ env.AWS_REGION }}
+
+          - name: Terraform init (setup)
+            working-directory: Infrastructure 
+            run: terraform init
+
+          - name: read image tag from ssm
+            id: get_sha
+            run: |
+              TAG=$(aws secretsmanager get-secret-value \
+                --secret-id image-tag \
+                --query 'SecretString' --output text | jq -r .tag)
+              echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+
+          - name: terraform apply
+            working-directory: Infrastructure 
+            run: terraform apply -var="image_tag=${{ env.IMAGE_TAG}}" -auto-approve
