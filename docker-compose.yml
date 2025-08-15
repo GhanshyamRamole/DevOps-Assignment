@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  backend:
+    image: backend:latest
+    container_name: backend
+    ports:
+      - "8000:8000"
+    networks:
+      - assignment-network
+
+  frontend:
+    image: frontend:latest  
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - assignment-network
+    environment:
+      - NEXT_PUBLIC_API_URL=http://14.125.3.11:8000
+    depends_on:
+      - backend
+
+networks:
+  pgagi-network:
+    driver: bridge
